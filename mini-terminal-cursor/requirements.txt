@@ -1,0 +1,7 @@
+click
+requests
+rich
+questionary
+langchain
+langchain_ollama
+langchain-chroma
