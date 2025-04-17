@@ -33,6 +33,27 @@ def generate_project():
     # Dynamically build prompt
     prompt = f"""
     You are an expert {project_type} engineer. Please generate a {project_type} project with the name {project_name} and the following specifications: {project_spec}.
-    The project should be well-structured and include all necessary files and folders. Please provide the code in a zip file format.
+    
+    Output:
+    1. Describe what the app is.
+    2. Explain the folder structure.
+    3. Then output full file code blocks for each file.
+    4. Only use minimal required files/folders and no extra text.
+Start with a heading like 'Generating Flappy Bird with Python and Pygame...'
+
+    The project should be well-structured with clean, maintainable code.
     """
     log_info(f"Prompt: {prompt}")
+
+    # Query Ollama
+    response = query_ollama(prompt)
+    log_info("Response received from Ollama.")
+
+    print("\n" + "=" * 60)
+    print(response)
+    print("=" * 60 + "\n")
+
+    log_step("🗂️ Creating project files...")
+    create_project_structure(project_name, response)
+
+    log_info("✅ Done! Your project is ready.\n")
