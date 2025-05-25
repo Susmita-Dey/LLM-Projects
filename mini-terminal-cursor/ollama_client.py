@@ -1,5 +1,7 @@
 import config
 
+MODE = config.MODE
+
 if MODE == "langchain":
     from langchain_core.prompts import ChatPromptTemplate
     from langchain_ollama import OllamaLLM

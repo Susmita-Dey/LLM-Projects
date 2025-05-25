@@ -1,7 +1,6 @@
 import os
 import click
 import questionary
-from ollama_client import query_ollama
 from utils.file_utils import create_project_structure
 from utils.logger import log_info, log_step
 
@@ -11,6 +10,7 @@ def generate_project():
     """
     Interactive command line tool to generate a full-stack project.
     """
+    from ollama_client import query_ollama  # <-- Move import here
 
     project_type = questionary.select(
         "🧠 What type of project do you want to create?",
@@ -25,12 +25,9 @@ def generate_project():
         "📝 Please provide a brief description of your project (e.g. A simple calculator web app)"
     ).ask()
 
-    # project tech stack (will add later)
-
     log_info(f"\n✨ Generating a {project_type} project: {project_name}...\n")
     log_step("🧠 Querying Ollama to generate code...")
 
-    # Dynamically build prompt
     prompt = f"""
     You are an expert {project_type} engineer. Please generate a {project_type} project with the name {project_name} and the following specifications: {project_spec}.
     
@@ -45,7 +42,6 @@ Start with a heading like 'Generating Flappy Bird with Python and Pygame...'
     """
     log_info(f"Prompt: {prompt}")
 
-    # Query Ollama
     response = query_ollama(prompt)
     log_info("Response received from Ollama.")
 
