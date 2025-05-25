@@ -34,7 +34,10 @@ def generate_project():
     Output:
     1. Describe what the app is.
     2. Explain the folder structure.
-    3. Then output full file code blocks for each file.
+    3.  Then output full file code blocks for each file, using this format:
+        ```<language>
+        // filepath: <relative/path/to/file>
+        <file contents>
     4. Only use minimal required files/folders and no extra text.
 Start with a heading like 'Generating Flappy Bird with Python and Pygame...'
 

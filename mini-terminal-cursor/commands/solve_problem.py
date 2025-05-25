@@ -3,32 +3,8 @@ import questionary
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
-import requests
-import re
 
 console = Console()
-
-
-def fetch_leetcode_problem(link):
-    # Basic fetch for Leetcode problem statement (HTML scraping)
-    try:
-        resp = requests.get(link)
-        if resp.status_code == 200:
-            # Extract problem statement from HTML (very basic, not robust)
-            match = re.search(
-                r'<div class="content__u3I1 question-content__JfgR">(.*?)</div>',
-                resp.text,
-                re.DOTALL,
-            )
-            if match:
-                text = re.sub("<.*?>", "", match.group(1))  # Remove HTML tags
-                return text.strip()
-            else:
-                return "Could not extract problem statement from the link."
-        else:
-            return "Failed to fetch the problem link."
-    except Exception as e:
-        return f"Error fetching problem: {e}"
 
 
 @click.command()
@@ -38,32 +14,51 @@ def solve_problem():
     """
     from ollama_client import query_ollama
 
-    input_type = questionary.select(
-        "How do you want to provide the problem?",
-        choices=["Paste a link", "Write a description"],
+    problem = questionary.text(
+        "Describe your coding challenge or paste the full problem statement:"
     ).ask()
 
-    if input_type == "Paste a link":
-        link = questionary.text("Paste the problem link (e.g., Leetcode):").ask()
-        problem = fetch_leetcode_problem(link)
-        console.print(
-            Panel(
-                f"[bold]Fetched Problem Statement:[/bold]\n{problem}", title="Problem"
-            )
-        )
-    else:
-        problem = questionary.text(
-            "Describe your coding challenge or paste a Leetcode problem:"
-        ).ask()
-        console.print(Panel(problem, title="Problem"))
-
-    if not problem:
-        console.print("[red]No problem description provided.[/red]")
+    if not problem or not problem.strip():
+        console.print("[red]No problem description provided. Aborting.[/red]")
         return
 
-    console.print("[yellow]Solving your problem with AI...[/yellow]")
+    language = questionary.select(
+        "💻 Choose the programming language for the solution:",
+        choices=[
+            "Python",
+            "Java",
+            "JavaScript",
+            "TypeScript",
+            "C",
+            "C++",
+            "Go",
+            "Rust",
+            "PHP",
+            "Other",
+        ],
+    ).ask()
+
+    if language == "Other":
+        language = questionary.text(
+            "Please specify your preferred programming language"
+        ).ask()
+
+    console.print(Panel(problem, title="Problem", highlight=True))
+    console.print(f"[cyan]Language selected:[/cyan] [bold]{language}[/bold]")
+
+    console.print("[yellow]🧠 Solving your problem with AI...[/yellow]")
     solution = query_ollama(
-        f"Solve the following coding challenge. Provide clean, commented code and a brief explanation:\n\n{problem}"
+        f"""You are an expert competitive programmer.
+        Solve the following coding challenge in {language}.
+
+        1. First, explain your approach step by step.
+        2. Then, write a function with the correct signature as required by the problem.
+        3. Ensure your code passes all edge cases and is efficient.
+        4. After the code, provide at least two sample test cases and their expected outputs.
+
+        Problem statement:
+        {problem}
+        """
     )
 
     # Beautify output

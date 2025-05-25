@@ -1,5 +1,8 @@
 import questionary
 import config
+from rich.console import Console
+
+console = Console()
 
 
 def main_menu():
@@ -17,12 +20,15 @@ def main_menu():
         elif choice == "Generate a project":
             generate_project()
         else:
-            print("Goodbye!")
             break
+
+    console.print(f"\n\n[bold]Goodbye![/bold]\n")
 
 
 if __name__ == "__main__":
-    print("Mini Terminal Cursor CLI is here!")
+    console.print(
+        f"\n[cyan][bold]====================================== Mini Terminal Cursor CLI is here! ======================================[/bold][/cyan]\n"
+    )
 
     if not config.MODE:
         mode = questionary.select(
