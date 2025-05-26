@@ -1,4 +1,5 @@
 import config
+from utils.logger import log_info
 
 MODE = config.MODE
 
@@ -17,7 +18,12 @@ if MODE == "langchain":
     def query_ollama(prompt: str) -> str:
         template = ChatPromptTemplate.from_template("{question}")
         chain = template | llm
-        return chain.invoke({"question": prompt})
+        try:
+            return chain.invoke({"question": prompt})
+        except Exception as e:
+            log_info("[red]❌ Could not connect to Ollama server. Is it running?[/red]")
+            log_info(f"[red]Error: {e}[/red]")
+            exit(1)
 
 else:
     import requests
@@ -29,6 +35,11 @@ else:
             "stream": False,
             **config.OLLAMA_PARAMS,
         }
-        response = requests.post(config.OLLAMA_URL, json=payload)
-        response.raise_for_status()
-        return response.json()["response"]
+        try:
+            response = requests.post(config.OLLAMA_URL, json=payload)
+            response.raise_for_status()
+            return response.json()["response"]
+        except requests.exceptions.RequestException as e:
+            log_info("[red]❌ Could not connect to Ollama server. Is it running?[/red]")
+            log_info(f"[red]Error: {e}[/red]")
+            exit(1)
